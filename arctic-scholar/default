@@ -1,0 +1,28 @@
+# Nginx config for default site
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server ipv6only=on;
+
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+
+        # Make site accessible from http://localhost/
+        server_name localhost scholar.arcticconnect.org;
+
+        # Enable compression by gzip
+        gzip on;
+        gzip_types text/plain text/html application/json;
+
+        location / {
+                # Avoid logging heartbeat requests
+                if ($query_string = "heartbeat") { access_log off; }
+                # Proxy requests to ElasticSearch, block requests that are not
+                # GET or HEAD requests
+                proxy_pass http://127.0.0.1:9200;
+                limit_except GET HEAD {
+                    allow 127.0.0.1;
+                    deny all;
+                }
+        }
+}
