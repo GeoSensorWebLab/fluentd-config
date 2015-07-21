@@ -50,9 +50,9 @@ module Fluent
       lon, lat = reproject(proj_x, proj_y, KNOWN_STYLES[style])
 
       record["location"] = {
-        "lat" => lat,
-        "lon" => lon,
-        "geohash" => GeoHash.encode(lat, lon)
+        "lat" => lat.nan? ? nil : lat,
+        "lon" => lon.nan? ? nil: lon,
+        "geohash" => (lat.nan? || lon.nan?) ? nil : GeoHash.encode(lat, lon)
       }
       record[@tile_x_key] = x
       record[@tile_y_key] = y
